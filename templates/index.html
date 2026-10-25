@@ -1,1 +1,43 @@
-<h1>RAG App</h1>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAG App</title>
+  <style>
+    body { background: #f7f7f8; color: #202124; font-family: Arial, sans-serif; margin: 0; }
+    main { background: #fff; border: 1px solid #ddd; border-radius: 8px; margin: 4rem auto; max-width: 700px; padding: 2rem; }
+    form { display: flex; gap: 0.75rem; }
+    input { border: 1px solid #aaa; border-radius: 4px; flex: 1; font: inherit; padding: 0.7rem; }
+    button { background: #1a73e8; border: 0; border-radius: 4px; color: #fff; cursor: pointer; font: inherit; padding: 0.7rem 1.1rem; }
+    button:disabled { cursor: wait; opacity: 0.7; }
+    .message { border-radius: 4px; margin-top: 1.5rem; padding: 1rem; white-space: pre-wrap; }
+    .answer { background: #eef6ff; }
+    .error { background: #fff0f0; color: #a10000; }
+    #loading { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>RAG App</h1>
+    <form id="question-form" method="post">
+      <label for="question" class="sr-only">Question</label>
+      <input id="question" name="question" type="text" value="{{ question }}" placeholder="Ask a question about your documents" required>
+      <button id="ask-button" type="submit">Ask</button>
+    </form>
+    <p id="loading" hidden aria-live="polite">Finding an answer…</p>
+    {% if answer %}
+      <section class="message answer" aria-label="Answer">{{ answer }}</section>
+    {% endif %}
+    {% if error %}
+      <section class="message error" role="alert">{{ error }}</section>
+    {% endif %}
+  </main>
+  <script>
+    document.getElementById("question-form").addEventListener("submit", function () {
+      document.getElementById("loading").hidden = false;
+      document.getElementById("ask-button").disabled = true;
+    });
+  </script>
+</body>
+</html>

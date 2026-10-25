@@ -34,5 +34,6 @@ def test_get_embeddings_skips_api_call_for_empty_input():
 def test_get_embeddings_requires_api_key(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
-    with pytest.raises(ValueError, match="OPENAI_API_KEY is not set"):
-        get_embeddings(["text"])
+    with patch("src.embeddings.load_dotenv"):
+        with pytest.raises(ValueError, match="OPENAI_API_KEY is not set"):
+            get_embeddings(["text"])

@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from src.indexer import index_documents
+from src.indexer import index_documents, index_file
 
 
 def test_index_documents_runs_each_pipeline_step(tmp_path):
@@ -40,3 +40,22 @@ def test_index_documents_skips_embeddings_for_no_chunks(tmp_path):
     get_embeddings.assert_not_called()
     initialize_collection.assert_not_called()
     store_chunks.assert_not_called()
+
+
+def test_index_file_only_loads_and_stores_the_requested_document(tmp_path):
+    path = tmp_path / "new.txt"
+    chunks = [{"text": "new", "source": "new.txt", "page": None, "chunk_id": 0}]
+    collection = Mock()
+
+    with (
+        patch("src.indexer.load_document", return_value=chunks) as load_document,
+        patch("src.indexer.get_embeddings", return_value=[[0.1, 0.2]]) as get_embeddings,
+        patch("src.indexer.initialize_collection", return_value=collection),
+        patch("src.indexer.store_chunks") as store_chunks,
+    ):
+        indexed_count = index_file(path, tmp_path / "chroma_db")
+
+    assert indexed_count == 1
+    load_document.assert_called_once_with(path)
+    get_embeddings.assert_called_once_with(["new"])
+    store_chunks.assert_called_once_with(collection, chunks, [[0.1, 0.2]])

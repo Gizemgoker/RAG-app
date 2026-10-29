@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.document_loader import chunk_text, load_documents
+from src.document_loader import chunk_text, load_document, load_documents
 
 
 def test_loads_utf8_text_file_with_metadata(tmp_path):
@@ -13,6 +13,16 @@ def test_loads_utf8_text_file_with_metadata(tmp_path):
     assert chunks == [
         {"text": "caffè", "source": "notes.txt", "page": None, "chunk_id": 0}
     ]
+
+
+def test_loads_one_document_without_scanning_its_directory(tmp_path):
+    target = tmp_path / "target.txt"
+    target.write_text("index only this", encoding="utf-8")
+    (tmp_path / "other.txt").write_text("do not index this", encoding="utf-8")
+
+    chunks = load_document(target)
+
+    assert [chunk["text"] for chunk in chunks] == ["index only this"]
 
 
 def test_pdf_chunks_include_one_based_page_metadata(tmp_path):

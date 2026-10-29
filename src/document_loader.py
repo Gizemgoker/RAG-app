@@ -87,6 +87,21 @@ def load_documents(
     return chunks
 
 
+def load_document(
+    document_path: str | Path,
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
+) -> list[dict[str, Any]]:
+    """Load one supported document and return its text chunks."""
+    validate_chunk_parameters(chunk_size, chunk_overlap)
+    path = Path(document_path)
+    if not path.is_file() or path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+        logger.warning("Unsupported or missing document: %s", path)
+        return []
+
+    return _load_file(path, chunk_size, chunk_overlap)
+
+
 def _load_file(path: Path, chunk_size: int, chunk_overlap: int) -> list[dict[str, Any]]:
     try:
         if path.suffix.lower() == ".txt":

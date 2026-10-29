@@ -15,15 +15,17 @@
     .answer { background: #eef6ff; }
     .error { background: #fff0f0; color: #a10000; }
     #loading { margin-top: 1rem; }
+    .upload { border-top: 1px solid #ddd; margin-top: 2rem; padding-top: 1.5rem; }
+    .success { background: #eff9ef; color: #146c2e; }
   </style>
 </head>
 <body>
   <main>
     <h1>RAG App</h1>
-    <form id="question-form" method="post">
+    <form id="question-form" method="post" action="{{ url_for('index') }}">
       <label for="question" class="sr-only">Question</label>
       <input id="question" name="question" type="text" value="{{ question }}" placeholder="Ask a question about your documents" required>
-      <button id="ask-button" type="submit">Ask</button>
+      <button id="ask-button" type="submit" form="question-form">Ask</button>
     </form>
     <p id="loading" hidden aria-live="polite">Finding an answer…</p>
     {% if answer %}
@@ -32,11 +34,30 @@
     {% if error %}
       <section class="message error" role="alert">{{ error }}</section>
     {% endif %}
+    {% if success %}
+      <section class="message success" role="status">{{ success }}</section>
+    {% endif %}
+    <section class="upload" aria-labelledby="upload-heading">
+      <h2 id="upload-heading">Add a document</h2>
+      <form id="upload-form" method="post" action="{{ url_for('upload_document') }}" enctype="multipart/form-data">
+        <label for="document">PDF or TXT file</label>
+        <input id="document" name="document" type="file" accept=".pdf,.txt" required>
+        <button id="upload-button" type="submit" form="upload-form">Upload and index</button>
+      </form>
+      <p id="upload-loading" hidden aria-live="polite">Uploading and indexing…</p>
+    </section>
   </main>
   <script>
-    document.getElementById("question-form").addEventListener("submit", function () {
+    const questionForm = document.getElementById("question-form");
+    const uploadForm = document.getElementById("upload-form");
+
+    questionForm.addEventListener("submit", function () {
       document.getElementById("loading").hidden = false;
       document.getElementById("ask-button").disabled = true;
+    });
+    uploadForm.addEventListener("submit", function () {
+      document.getElementById("upload-loading").hidden = false;
+      document.getElementById("upload-button").disabled = true;
     });
   </script>
 </body>
